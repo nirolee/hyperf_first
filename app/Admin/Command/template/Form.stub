@@ -1,0 +1,49 @@
+<?php
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+%USES%
+
+class %CLASS%Form extends %PARENT_FORM%
+{
+    CONST LIST = 'getTableList';
+    CONST ADD = 'add';
+    CONST EDIT = 'edit';
+    CONST DELETE = 'delete';
+
+    protected function rules(): array
+    {
+        return [
+            self::ADD => [
+                %ADD_RULES%
+            ],
+            self::LIST => [
+                %LIST_RULES%
+            ],
+            self::EDIT => [
+                %EDIT_RULES%
+            ],
+            self::DELETE => [
+                %DELETE_RULES%
+            ]
+        ];
+    }
+
+    protected function message(): array
+    {
+        return [];
+    }
+
+    protected function scene(): array
+    {
+        return [];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            %ATTRIBUTES%
+        ];
+    }
+}

@@ -1,0 +1,5 @@
+.idea/*
+runtime/*
+.env
+watch
+resource/upload/*`

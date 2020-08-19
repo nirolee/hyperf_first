@@ -1,0 +1,175 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use Hyperf\Contract\LengthAwarePaginatorInterface;
+use Hyperf\Database\Model\Collection;
+use Hyperf\ModelCache\Cacheable;
+use Hyperf\Database\Model\SoftDeletes;
+use Hyperf\Database\Model\Builder;
+%USES%
+
+class %CLASS% extends %INHERITANCE%
+{
+    use Cacheable;
+    use SoftDeletes;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = '%TABLE%';
+
+    /**
+     * The connection name for the model.
+     *
+     * @var string
+     */
+    protected $connection = '%CONNECTION%';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [];
+
+    protected $primaryKey = '%PK%';
+
+    /**
+     * describe 新增操作
+     * author SYSTEM
+     * date %DATE%
+     * @param array $data 对象属性
+     * @return %CLASS%|null
+     */
+    public function add(Array $data) : ?%CLASS% {
+        return %CLASS%::create($data);
+    }
+
+    /**
+     * describe 根据id查询记录
+     * author SYSTEM
+     * date %DATE%
+     * @param int $id 主键id
+     * @param array $conditions 其他where条件
+     * @return %CLASS%|null
+     */
+    public function findByPk(int $id, Array $conditions = []) : ?%CLASS%
+    {
+        return $this->dealWhereCondition(array_merge($conditions, [$this->primaryKey => $id]))->first();
+    }
+
+    /**
+     * describe 根据主键id数组查询记录
+     * author SYSTEM
+     * date %DATE%
+     * @param array $pks id 主键id数组
+     * @return Collection|null
+     */
+    public function findByPks(Array $pks) : ?Collection {
+        if (empty($pks)) {
+            return null;
+        }
+        return %CLASS%::query()->whereIn($this->primaryKey, $pks)->get();
+    }
+
+    /**
+     * describe 根据主键更新数据
+     * author SYSTEM
+     * date %DATE%
+     * @param int $id 主键id
+     * @param array $updateData 更新数组
+     * @param array $extConditions 补充where条件句
+     * @return int
+     */
+    public function updateByPk(int $id, Array $updateData, Array $extConditions = []): int
+    {
+        if (empty($updateData)) {
+            return 1;
+        }
+        return $this->dealWhereCondition(array_merge($extConditions, [$this->primaryKey => $id]))->update($updateData);
+    }
+
+    /**
+     * describe 分页查询操作记录
+     * author SYSTEM
+     * date %DATE%
+     * @param array $wheres where条件句
+     * @param int $limit 每页记录数
+     * @param array $withTable 关联表
+     * @param array $withWhereCondition 关联查询条件
+     * @return LengthAwarePaginatorInterface
+     */
+    public function findPaginateByCondition(Array $wheres = [], int $limit = 20, array $withTable = [], array $withWhereCondition = []): LengthAwarePaginatorInterface
+    {
+        $query = %CLASS%::query();
+        if ($withTable) {
+            $query->with($withTable);
+        }
+        if ($withWhereCondition) {
+            foreach ($withWhereCondition as $alias => $conditionQuery) {
+                if ($conditionQuery) {
+                    $query->whereHas($alias, function ($query) use ($conditionQuery) {
+                        $query->where($conditionQuery);
+                    });
+                }
+            }
+        }
+        return $this->dealWhereCondition($wheres, $query)->orderBy($this->primaryKey, 'desc')->paginate($limit);
+    }
+
+    /**
+     * describe 根据id删除记录
+     * author SYSTEM
+     * date %DATE%
+     * @param int $id 主键id
+     * @param array $extConditions 补充where条件句
+     * @return int
+     */
+    public function deleteByPk(int $id, Array $extConditions = []) : int
+    {
+        return $this->dealWhereCondition(array_merge($extConditions, [$this->primaryKey => $id]))->delete();
+    }
+
+    /**
+     * describe 根据id删除记录
+     * author SYSTEM
+     * date %DATE%
+     * @param array $ids 主键id数组
+     * @param array $extConditions 补充where条件句
+     * @return int
+     */
+    public function deleteByPks(array $ids, Array $extConditions = []) : int
+    {
+        $query = %CLASS%::query();
+        if ($extConditions) {
+            $query = $this->dealWhereCondition($extConditions, $query);
+        }
+        return $query->whereIn($this->primaryKey, $ids)->delete();
+    }
+
+    /**
+     * describe 处理where条件
+     * author SYSTEM
+     * date %DATE%
+     * @param Builder $builder 查询构造器
+     * @param array $where where条件
+     * @return Builder
+     */
+    private function dealWhereCondition(Array $where, Builder $builder = null): Builder {
+        $builder = is_null($builder) ? %CLASS%::query() : $builder;
+        %WHERE_CONDITION%
+        return $builder;
+    }
+}

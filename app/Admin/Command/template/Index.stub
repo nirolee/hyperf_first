@@ -1,0 +1,60 @@
+@extends(config('view.config.'.ADMIN_SERVER.'.layout_name'))
+
+@section('content')
+<form class="layui-form search-table-form">
+    <div class="layui-form-item">
+        %QUERY_CONDITION%
+        <div class="layui-btn-group">
+            <button type="button" class="layui-btn" lay-submit lay-filter="query%CLASS%TableList">{{trans('message.query')}}</button>
+            <button type="reset" class="layui-btn ">{{trans('message.reset')}}</button>
+            <a class="layui-btn permission-btn" href="{{url('/%MODEL%/add')}}">{{trans('message.add_%MODEL%')}}</a>
+        </div>
+    </div>
+</form>
+
+<div class="table-div-warp">
+    <table class="layui-hide" id="%CLASS%TableList" lay-filter="edit%CLASS%TableList"></table>
+</div>
+
+<script>
+    layui.use(["table", "layer"], function(){
+        var table = layui.table,form = layui.form,layer = layui.layer;
+        table.render({
+            elem: "#%CLASS%TableList",
+            url:"{!! $url !!}",
+            cellMinWidth: 80,
+            cols: [[
+                %FIELDS%
+            ]],
+            page: {
+                limit: 20
+            }
+        });
+
+        form.on('submit(query%CLASS%TableList)', function (data) {
+            layui.table.reload('%CLASS%TableList', {
+                where: data.field
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+            //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            return false;
+        });
+
+        // 删除操作按钮
+        $(document).off('click', '.%DELETEBTN%').on('click', '.%DELETEBTN%', function(){
+            id = $(this).attr("data-id");
+            layer.confirm("{{trans('message.confirm_delete_operate')}}", {
+                title: '{{trans("message.tips")}}', btn: ['{{trans("message.sure")}}', '{{trans("message.cancel")}}']
+            }, function(){
+                JsPost("{{url('/%MODEL%/delete')}}", {'%PK%': id}, function (callback) {
+                    layer.msg(callback.msg, {time: 1000}, function(){
+                        table.reload('%CLASS%TableList');
+                    });
+                });
+            });
+        });
+    });
+</script>
+@endsection

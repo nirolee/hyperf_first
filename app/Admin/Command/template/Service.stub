@@ -1,0 +1,70 @@
+<?php
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+%USES%
+
+class %CLASS%Service
+{
+
+    /**
+     * @Inject()
+     * @var %CLASS%
+     */
+    private %CLASS% $model;
+
+    /**
+     * describe 获取操作table list
+     * author SYSTEM
+     * date %DATE%
+     * @param array $searchCondition 查询条件
+     * @param int $limit 分页每页记录数
+     * @return array
+     */
+    public function getTableList(Array $searchCondition = [], int $limit = 20): array
+    {
+        $datas = $this->model->findPaginateByCondition($searchCondition, $limit);
+        return ['data' => $datas->items(), 'count' => $datas->total()];
+    }
+
+    /**
+     * describe 新增操作
+     * author SYSTEM
+     * date %DATE%
+     * @param array $data 新增参数
+     * @return int
+     */
+    public function add(Array $data): int
+    {
+        $obj = $this->model->add($data);
+        return !$obj->isEmpty() ? ErrorCode::REQUEST_SUCCESS : ErrorCode::USU_ERROR;
+    }
+
+    /**
+     * describe 更新操作
+     * author SYSTEM
+     * date 2020/3/16
+     * @param array $data 更新数据
+     * @return int
+     */
+    public function edit(Array $data): int
+    {
+        $updateArray = [];
+        %UPDATE_WHERE_VARS%
+        $id = $this->model->updateByPk(intval($data['%PK%']), $updateArray);
+        return $id ? ErrorCode::REQUEST_SUCCESS : ErrorCode::USU_ERROR;
+    }
+
+    /**
+     * describe 删除操作
+     * author SYSTEM
+     * date 2020/3/16
+     * @param int $pk 主键
+     * @return int
+     */
+    public function delete(int $pk) : int {
+        $code = $this->model->deleteByPk($pk);
+        return $code ? ErrorCode::REQUEST_SUCCESS : ErrorCode::USU_ERROR;
+    }
+}

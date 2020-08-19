@@ -1,0 +1,5 @@
+@extends(config('view.config.'.ADMIN_SERVER.'.layout_name'))
+
+@section('content')
+    @include('%CLASS%/_form', ['isNew' => true])
+@endsection

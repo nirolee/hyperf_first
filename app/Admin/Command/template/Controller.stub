@@ -1,0 +1,100 @@
+<?php
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+%USES%
+
+/**
+ * Class %CLASS%Controller
+ * @package App\Admin\Controller
+ * @AdminController(prefix="/%PREFIX%")
+ */
+class %CLASS%Controller extends %PARENT_CLASS%
+{
+
+    /**
+     * @Inject()
+     * @var %CLASS%Service
+     */
+    private %CLASS%Service $service;
+
+    /**
+     * @Inject()
+     * @var %CLASS%
+     */
+    private %CLASS% $model;
+
+    /**
+     * @Inject()
+     * @var %CLASS%Form
+     */
+    private %CLASS%Form $form;
+
+    /**
+     * describe 获取列表
+     * author SYSTEM
+     * date %DATE%
+     * @GetMapping(path="index")
+     */
+    public function index()
+    {
+        if ($this->isAjax()) {
+            $formData = $this->form->doCheck(%CLASS%Form::LIST);
+            $limit = $formData['limit'] ?? 20;
+            $datas = $this->service->getTableList($formData, intval($limit));
+            return $this->json(ErrorCode::REQUEST_SUCCESS, true, $datas);
+        }
+        return $this->render('index', [
+            'url' => url('/%PREFIX%/index')
+        ]);
+    }
+
+    /**
+     * describe 新增
+     * author SYSTEM
+     * date %DATE%
+     * @RequestMapping(path="add", methods="get, post")
+     */
+    public function add()
+    {
+        if ($this->isPost()) {
+            $data = $this->form->doCheck(%CLASS%Form::ADD);
+            $code = $this->service->add($data);
+            return $this->json($code);
+        }
+        return $this->render('add', []);
+    }
+
+    /**
+     * describe 修改
+     * author SYSTEM
+     * date %DATE%
+     * @RequestMapping(path="edit", methods="get, post")
+     */
+    public function edit()
+    {
+        if ($this->isPost()) {
+            $scene = $this->request->input('scene', %CLASS%Form::EDIT);
+            $data = $this->form->doCheck($scene);
+            $code = $this->service->edit($data);
+            return $this->json($code);
+        }
+        $id = $this->request->input('id');
+        $obj = $this->model->findByPk(intval($id));
+        return $this->render('edit', ['obj' => $obj]);
+    }
+
+    /**
+     * describe 删除
+     * author SYSTEM
+     * date %DATE%
+     * @PostMapping(path="delete")
+     */
+    public function delete()
+    {
+        $data = $this->form->doCheck(%CLASS%Form::DELETE);
+        $code = $this->service->delete(intval($data['%PK%']));
+        return $this->json($code);
+    }
+}

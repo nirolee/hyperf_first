@@ -1,0 +1,35 @@
+<form class="layui-form" id="%CLASS%Form" lay-filter="%CLASS%Form">
+    %FORM_CONTENT%
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="listen%CLASS%FormSubmit">{{trans('message.submit_now')}}</button>
+            <button type="reset" class="layui-btn layui-btn-primary">{{trans('message.reset')}}</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    layui.use('form', function(){
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(listen%CLASS%FormSubmit)', function(data){
+            JsPost("@if($isNew) {{url('/%PREFIX%/add')}} @else {{url('/%PREFIX%/edit')}} @endif", data.field, function(callback) {
+                $(".layui-form-mid").html("");
+                if (callback.status != true) {
+                    for (var key in callback.data) {
+                        $("#tips_" + callback.data[key].parameter).html(callback.data[key].errorInfo);
+                    }
+                } else {
+                    layer.msg(callback.msg, {time: 1000}, function() {
+                        window.location.href = "{{url('/%PREFIX%/index')}}";
+                    });
+                }
+            });
+            return false;
+        });
+
+        form.render();
+    });
+</script>
